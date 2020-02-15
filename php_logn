@@ -1,0 +1,237 @@
+<?php 
+
+
+$localhost = 'localhost';
+$usern = 'root';
+$password = '';
+$db = 'oten';
+
+$conn = new mysqli($localhost,$usern,$password,$db);
+    if($conn->connect_error){
+        echo $conn->connect_error;
+    }else{
+        echo "connected";
+    }
+
+if(!isset($_SESSION)){
+    session_start();
+}else{
+    unset($_SESSION);
+}
+
+$wp ="";
+$username ="";
+$all ="";
+
+if (isset($_POST['login'])) {
+    if (empty($_POST['username']) && empty($_POST['lastname'])) {
+        $all = "Enter Username & Password";
+    } else {
+        $wp = "";
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+
+        $sql = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
+
+        $user = $conn->query($sql) or die($conn->error);
+        $row = $user->fetch_assoc();
+        $total = $user->num_rows;
+
+        if($row['username'] ==! $_POST['username'] && $row['password'] ==! $_POST['password']) {
+            $wp = "wrong username or password";
+        } elseif($row['username'] == $_POST['username'] && $row['password'] == $_POST['password']) {
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['type'] = $row['type'];
+            header("Location: cookie.php");
+        }
+    }
+}
+
+
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body>
+<h1>Login Page</h1>
+<br/>
+<form action="" method="POST">
+<label>Username</label>
+<input type="text" name="username" id="username" value ="<?php echo $username; ?>">
+<label>Password</label>
+<input type="password" name="password" id="password">
+<button type="submit" name="login">Login</button>
+<span class="text-danger"><?php echo $wp; ?></span>
+</form>
+<span class="text-danger"><h2><?php echo $all; ?></h2></span>
+</body>
+</html>
+
+////////////////////////////////////////2nd page////////////////////////////////////
+
+<?php
+    session_start();
+
+if(empty($_SESSION['username']) || empty($_SESSION['type']))
+{
+    header("Location: login1.php");
+}
+
+
+
+
+
+$userlogin = $_SESSION['username'];
+$usertype = $_SESSION['type'];
+
+$fnameErr = '';
+$lnameErr = '';
+
+
+if(empty($_SESSION['name'])) {
+    $_SESSION['name'] = "input anything";
+    $_SESSION['lastname'] = "input anything";
+    // }else{
+//     echo "Enter anyyhing";
+    // }
+}
+    // $firstS = $_SESSION['name'];
+    // $secondS = $_SESSION['lastname'];
+
+
+    if (isset($_POST['submit'])) {
+        if (empty($_POST['firstname'])) {
+            $fnameErr = "no first";
+        } else {
+            $_SESSION['name'] = $_POST['firstname'];
+        }
+        if (empty($_POST['lastname'])) {
+            $lnameErr = "no second";
+        } else {
+            $_SESSION['lastname'] = $_POST['lastname'];
+        }
+    } else {
+
+    }
+
+
+
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <h1>Welcome:<?php echo $userlogin; ?> </h1>
+    <h1>Type:<?php echo $usertype; ?> </h1>
+
+    <br>
+    <a href="phpinfo.php">go to info</a></br>
+</br>
+
+    <label>first</label>
+    <h1><?php echo $_SESSION['name']; ?></h1>
+    <label>Second</label>
+    <h1><?php echo $_SESSION['lastname']; ?></h1>
+
+<form action="" method="POST">
+<label>first</label>
+    <input type="text" name="firstname"><span class="text-danger"><?php echo $fnameErr; ?></span>
+    <br>
+    <br>
+<label>second</label>
+    <input type="text" name="lastname">
+    <span class="text-danger"><?php echo $lnameErr; ?></span><br>
+    <input type="submit" name="submit" value="submit"></input>
+    </form>
+    <br>
+<form action="destroy.php" method="POST">
+<button type="submit" name="submit" value="submit">Logout</button>
+</form>
+</body>
+</html>
+
+////////////////////////////////////////3rd page////////////////////////////////////
+
+
+<?php
+
+session_start();
+
+if(empty($_SESSION['name']) || empty($_SESSION['lastname']))
+{
+    header("Location: login1.php");
+}
+
+if(empty($_SESSION['username'])){
+    header("Location: login1.php");
+}
+
+
+$firstS = $_SESSION['name'];
+$secondS = $_SESSION['lastname'];
+$username = $_SESSION['username'];
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <h1>Landingan</h1>
+    <h1>Hello:<?php echo $username; ?></h1>
+    <a href="cookie.php">go back</a>
+
+<h1>Hi: <span class="text-danger"><?php echo $firstS; ?></span>
+lastname is 
+<span class="text-primary"><?php echo $secondS; ?></span></h1>
+<br>
+<form action="destroy.php" method="POST">
+<button type="submit" name="submit" value="submit">Logout</button>
+</form>
+</body>
+</html>
+
+////////////////////////////////////////4th page////////////////////////////////////
+
+
+
+
+<?php
+
+session_start();
+
+
+session_destroy();
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destroy</title>
+</head>
+<body>
+    
+<a href="login1.php">Thank you</a>
+</body>
+</html>
